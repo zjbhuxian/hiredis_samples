@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <hiredis/hiredis.h>
 #include "credis.h"
+#include "pubsub.h"
 
 
 //void doTest()
@@ -78,33 +79,49 @@
 
 int main(int argc, char** argv)
 {
-	Sets s;
-	init_sets(&s);
+	//Sets s;
+	//init_sets(&s);
 
-	int ret = 0;
-	int i = 0;
+	//int ret = 0;
+	//int i = 0;
 
-	if(argc <= 1){
-		return -1;
+	//if(argc <= 1){
+	//	return -1;
+	//}
+	//ret = store_handle("127.0.0.1", 6379, "zhou", argv[1]);
+	//if(ret != 0){
+	//	printf("Failed to store.\n");
+	//	return -1;
+	//}
+
+	//ret = fetch_handle("127.0.0.1", 6379, "zhou", &s);
+	//if(ret != 0){
+	//	printf("Failed to fetch.\n");
+	//	free_sets(&s);
+	//	return -1;
+	//}
+
+	//printf("s.num = [%d]\n", s.num);
+	//for(i = 0; i < s.num; ++i){
+	//	printf("member[%d]: %s\n", i, s.strArray[i]);
+	//}
+
+	//free_sets(&s);
+	
+	signal(SIGPIPE, SIG_IGN);
+	struct event_base* base = event_base_new();
+
+	redisAsyncContext* c = redisAsyncConnect("127.0.0.1", 6379);
+	if(c->err){
+		printf("Error: %s\n", c->errstr);
+		return 1;
 	}
-	ret = store_handle("127.0.0.1", 6379, "zhou", argv[1]);
-	if(ret != 0){
-		printf("Failed to store.\n");
-		return -1;
-	}
 
-	ret = fetch_handle("127.0.0.1", 6379, "zhou", &s);
-	if(ret != 0){
-		printf("Failed to fetch.\n");
-		free_sets(&s);
-		return -1;
-	}
+	redisLibeventAttach(c, base);
+	redisAsyncSetConnectCallback(c, connectCallback);
+	redisAsyncSetDisconnectCallback(c, disconnectCallback);
+	redisAsyncCommand(c, subCallback, (char*)"sub", "SUBSCRIBE foo");
 
-	printf("s.num = [%d]\n", s.num);
-	for(i = 0; i < s.num; ++i){
-		printf("member[%d]: %s\n", i, s.strArray[i]);
-	}
-
-	free_sets(&s);
+	event_base_dispatch(base);
 	return 0;
 }

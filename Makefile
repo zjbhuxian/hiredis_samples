@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -O -g
-DFLAGS=-lhiredis
+DFLAGS=-lhiredis -levent
 SRCS=$(wildcard *.c)
 OBJS=$(patsubst %.c, %.o, $(SRCS))
 TARGET=test

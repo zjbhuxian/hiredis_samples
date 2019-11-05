@@ -1,1 +1,6 @@
 # simple sample for hiredis
+
+# add sub/pub
+# Notes: Need libevent
+# console1: ./test
+# console2: redis-cli PUBLISH foo bar
