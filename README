@@ -1,0 +1,8 @@
+README
+PUBLISH/SUBSCRIBE SAMPLES by C
+
+Libs: libhiredis libpthread libevent
+
+$>make
+console1:$>./sub channel
+console2:$>./pub channel msg
